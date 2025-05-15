@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import html2canvas from "html2canvas";
+import html2canvas from "html2canvas/dist/html2canvas.esm.js";
 import jsPDF from "jspdf";
 
 export default function DashboardMetaAds() {
@@ -17,93 +17,11 @@ export default function DashboardMetaAds() {
   const [modoDemo, setModoDemo] = useState(false);
   const printRef = useRef();
 
-  const toggleTheme = () => setDarkMode(!darkMode);
-  const themeClasses = darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900";
-  const sheetId = "2PACX-1vTBhdsO4VY9Cw0R5SAT3A-thlzE3AnURnKn7psYmEweKZglrHfWgO5i5GAIuOb5b9RYV8Wv39eicigF";
-  const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-
-  const diagnosticarCampanha = ({ cpm, cpc, ctr, roas }) => {
-    if (roas < 1.5) return { status: "Crítica", acao: "Pausar campanha" };
-    if (ctr < 1.0) return { status: "Atenção", acao: "Revisar criativo/público" };
-    if (roas >= 3.0) return { status: "Saudável", acao: "Escalar orçamento" };
-    return { status: "Estável", acao: "Aguardar mais dados" };
-  };
-
-  useEffect(() => {
-    if (modoDemo) {
-      setCampanhas([
-        {
-          id: "demo-1",
-          nome: "Campanha Fictícia",
-          tipo: "Vendas",
-          cpm: 12.5,
-          cpc: 1.8,
-          ctr: 2.4,
-          roas: 3.2,
-          data: "2025-05-14",
-          status: "Saudável",
-          acao: "Escalar orçamento",
-        }
-      ]);
-    } else {
-      fetch(sheetUrl)
-        .then(res => res.text())
-        .then(text => {
-          const json = JSON.parse(text.substring(47).slice(0, -2));
-          const rows = json.table.rows.map(r => r.c);
-          const novasCampanhas = rows.map((r, i) => {
-            const nome = r[1]?.v || "";
-            const tipo = r[2]?.v || "";
-            const cpm = parseFloat(r[3]?.v || 0);
-            const cpc = parseFloat(r[4]?.v || 0);
-            const ctr = parseFloat(r[5]?.v || 0);
-            const roas = parseFloat(r[6]?.v || 0);
-            const data = r[0]?.v || "";
-            const { status, acao } = diagnosticarCampanha({ cpm, cpc, ctr, roas });
-            return {
-              id: `GS-${i + 1}`,
-              nome,
-              tipo,
-              cpm,
-              cpc,
-              ctr,
-              roas,
-              data,
-              status,
-              acao
-            };
-          });
-          setCampanhas(novasCampanhas);
-        });
-    }
-  }, [modoDemo]);
-  const campanhasAgrupadas = campanhas.reduce((acc, campanha) => {
-    acc[campanha.data] = acc[campanha.data] || [];
-    acc[campanha.data].push(campanha);
-    return acc;
-  }, {});
-
-  const dadosGrafico = Object.entries(campanhasAgrupadas).map(([data, campanhasDia]) => {
-    const roasMedio = campanhasDia.reduce((sum, c) => sum + c.roas, 0) / campanhasDia.length;
-    const cpaMedio = campanhasDia.reduce((sum, c) => sum + (c.cpc / (c.ctr / 100 || 1)), 0) / campanhasDia.length;
-    return { data, roas: parseFloat(roasMedio.toFixed(2)), cpa: parseFloat(cpaMedio.toFixed(2)) };
-  });
-
-  const exportarCSV = () => {
-    const linhas = campanhas.map(c => (
-      [c.id, c.nome, c.tipo, c.cpm, c.cpc, c.ctr, c.roas, c.status, c.acao, c.data].join(",")
-    ));
-    const csv = ["ID,Nome,Tipo,CPM,CPC,CTR,ROAS,Status,Ação,Data", ...linhas].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "campanhas-meta-ads.csv");
-    link.click();
-  };
+  // Aqui estariam outros hooks e lógicas, que você deve manter
 
   const exportarPDF = () => {
-    html2canvas(printRef.current).then(canvas => {
+    const input = printRef.current;
+    html2canvas(input).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "mm", "a4");
       const imgProps = pdf.getImageProperties(imgData);
@@ -151,3 +69,4 @@ export default function DashboardMetaAds() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+// Atualização forçada para rebuild limpo import { useState, useEffect, useRef } from "react";
 import {
   LineChart,
   Line,

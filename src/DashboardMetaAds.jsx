@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import html2canvas from "html2canvas/dist/html2canvas.esm.js";
+import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 export default function DashboardMetaAds() {
